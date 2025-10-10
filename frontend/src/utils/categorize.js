@@ -1,7 +1,7 @@
-export default function (allMovies, genre) {
-  if (genre === "All") return allMovies;
+export default function (allSuggestions, suggestionCategory) {
+  if (suggestionCategory === "All") return allSuggestions;
   else
-    return allMovies.filter((movie) =>
-      movie.genre.some((g) => g.name === genre)
+    return allSuggestions.filter((suggestion) =>
+      suggestion.suggestionCategory.some((cat) => cat.name === suggestionCategory)
     );
 }

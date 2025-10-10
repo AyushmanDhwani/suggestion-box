@@ -1,22 +1,22 @@
-import { GET_MOVIES_SUCCESS, GET_MOVIES_ERROR } from "../actions/actionTypes";
+import { GET_SUGGESTIONS_SUCCESS, GET_SUGGESTIONS_ERROR } from "../actions/actionTypes";
 
 const initialState = {
-  movies: [],
-  movie: {},
+  suggestions: [],
+  suggestion: {},
   error: null,
   loading: true,
 };
 
 export default function (state = initialState, action) {
   switch (action.type) {
-    case GET_MOVIES_SUCCESS:
+    case GET_SUGGESTIONS_SUCCESS:
       return {
         ...state,
-        movies: action.payload,
+        suggestions: action.payload,
         loading: false,
       };
 
-    case GET_MOVIES_ERROR:
+    case GET_SUGGESTIONS_ERROR:
       return {
         ...state,
         error: action.error,

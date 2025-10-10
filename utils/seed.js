@@ -1,22 +1,22 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Movie from "../models/movie.js";
-import Genre from "../models/genre.js";
+import SuggestionCategory from "../models/genre.js";
 import User from "../models/user.js";
 
 dotenv.config();
 
-const genres = [
-  { name: "Drama" },
-  { name: "Crime" },
-  { name: "Action" },
-  { name: "Comedy" },
-  { name: "Horror" },
-  { name: "Romance" },
-  { name: "Sci-Fi" },
-  { name: "Fantasy" },
-  { name: "Thriller" },
-  { name: "Mystery" },
+const suggestionCategories = [
+  { name: "Office Infrastructure" },
+  { name: "Health and Hygiene" },
+  { name: "Culture" },
+  { name: "Productivity" },
+  { name: "Work-Life Balance" },
+  { name: "Technology" },
+  { name: "Communication" },
+  { name: "Training & Development" },
+  { name: "Safety" },
+  { name: "Other" },
 ];
 
 const movies = [
@@ -470,19 +470,8 @@ const seedDB = async () => {
   });
 
   await User.deleteMany({});
-  await Genre.deleteMany({});
-  const createdGenres = await Genre.insertMany(genres);
-
-  await Movie.deleteMany({});
-  const moviesWithGenreIds = movies.map(movie => {
-    const genreIds = movie.genre.map(genreName => {
-      const genre = createdGenres.find(g => g.name === genreName);
-      return genre._id;
-    });
-    return { ...movie, genre: genreIds };
-  });
-
-  await Movie.insertMany(moviesWithGenreIds);
+  await SuggestionCategory.deleteMany({});
+  const createdSuggestionCategories = await SuggestionCategory.insertMany(suggestionCategories);
 
   console.log("Database seeded!");
   mongoose.connection.close();

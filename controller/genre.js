@@ -1,46 +1,46 @@
-import Genre from "../models/genre.js";
+import SuggestionCategory from "../models/genre.js";
 import express from "express";
 import checkAuth from "../middleware/checkAuth.js";
 import checkAdmin from "../middleware/checkAdmin.js";
 const router = express.Router();
 
 /**
- * Get all genres.
- * @route GET /api/genres
- * @returns {object[]} An array of genre objects.
- * @throws {Error} If an error occurs while fetching the genres.
+ * Get all suggestion categories.
+ * @route GET /api/suggestionCategories
+ * @returns {object[]} An array of suggestion category objects.
+ * @throws {Error} If an error occurs while fetching the suggestion categories.
  */
 router.get("/", async (req, res) => {
   try {
-    const genres = await Genre.find();
-    res.status(200).json(genres);
+    const suggestionCategories = await SuggestionCategory.find();
+    res.status(200).json(suggestionCategories);
   } catch (error) {
     res.status(500).json({ message: "Something went wrong", error });
   }
 });
 
 /**
- * Add a new genre.
- * @route POST /api/genres
- * @param {string} name - The name of the genre.
- * @returns {object} A success message if the genre is added successfully.
- * @throws {Error} If the genre already exists or an error occurs while saving the genre.
+ * Add a new suggestion category.
+ * @route POST /api/suggestionCategories
+ * @param {string} name - The name of the suggestion category.
+ * @returns {object} A success message if the suggestion category is added successfully.
+ * @throws {Error} If the suggestion category already exists or an error occurs while saving it.
  */
 router.post("/", checkAuth, checkAdmin, async (req, res) => {
   const { name } = req.body;
   try {
-    const isGenreExists = await Genre.findOne({ name });
+    const isSuggestionCategoryExists = await SuggestionCategory.findOne({ name });
 
-    if (isGenreExists) {
-      return res.status(400).json({ message: "Genre already exists" });
+    if (isSuggestionCategoryExists) {
+      return res.status(400).json({ message: "Suggestion category already exists" });
     }
 
-    const newGenre = new Genre({ name });
-    await newGenre.save();
+    const newSuggestionCategory = new SuggestionCategory({ name });
+    await newSuggestionCategory.save();
 
-    res.status(201).json({ message: "Genre added successfully" });
+    res.status(201).json({ message: "Suggestion category added successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to add genre", message: error.message });
+    res.status(500).json({ error: "Failed to add suggestion category", message: error.message });
   }
 });
 

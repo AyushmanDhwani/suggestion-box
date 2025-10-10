@@ -1,12 +1,11 @@
 import Joi from "joi";
 
-export const movieSchema = Joi.object({
+export const suggestionSchema = Joi.object({
   id: Joi.string(),
   title: Joi.string().required().label("Title"),
-  genre: Joi.string().required().label("Genre"),
+  suggestionCategory: Joi.string().required().label("Suggestion Category"),
+  approval: Joi.boolean().default(false).label("Approval"),
   description: Joi.string().allow("").label("Description"),
-  image: Joi.object().allow(null).label("Cover Image"),
-  rate: Joi.number().min(0).max(10).default(0).label("Rating"),
-  trailerLink: Joi.string().allow(null, "").label("Trailer Link"),
-  movieLength: Joi.string().required().label("Movie length"),
+  comments: Joi.array().items(Joi.string()).label("Comments"),
+  reviewStatus: Joi.string().valid("pending", "in review", "approved", "rejected").default("pending").label("Review Status"),
 });
