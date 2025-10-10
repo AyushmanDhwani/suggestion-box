@@ -77,7 +77,7 @@ const Suggestions = (props) => {
               placeholder="Search..."
             />
             <p className="text-left text-muted">
-              {!!filteredSuggestions.length ? `${filteredSuggestions.length} ` : "0"}
+              {!!filteredSuggestions.length ? `${filteredSuggestions.length} ` : "0 "}
               suggestions found.
             </p>
 

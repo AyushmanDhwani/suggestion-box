@@ -44,7 +44,7 @@ router.post("/signUp", async (req, res) => {
       },
     });
 
-    sendEmail(email, "Welcome to iCinema", "Welcome to iCinema");
+    sendEmail(email, "Welcome to SuggestionBox", "Welcome to SuggestionBox");
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
