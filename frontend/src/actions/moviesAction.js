@@ -70,22 +70,21 @@ export const getSuggestions = () => {
   };
 };
 
-export const addSuggestion = (suggestion, history) => {
+export const addSuggestion = (formData, history) => {
   return async (dispatch) => {
     const user = JSON.parse(localStorage.getItem("user"));
     const token = user ? user.accessToken : null;
     const config = {
       headers: {
-        "content-type": "application/json",
         Authorization: `Bearer ${token}`,
+        // Do NOT set 'Content-Type' here!
       },
     };
     try {
-      const result = await Axios.post("/api/suggestions", suggestion, config);
-      // You can dispatch a success action here if needed
+      const result = await Axios.post("/api/suggestions", formData, config);
       if (history) history.push("/suggestions");
     } catch (error) {
-      // You can dispatch an error action here if needed
+      // handle error
     }
   };
 };

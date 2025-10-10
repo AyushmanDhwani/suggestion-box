@@ -17,6 +17,7 @@ class AddSuggestionForm extends React.Component {
       title: "",
       suggestionCategory: "",
       description: "",
+      file: null,
     },
     errors: {},
   };
@@ -39,11 +40,16 @@ class AddSuggestionForm extends React.Component {
 
   handleChange = ({ currentTarget: input }) => {
     const errors = { ...this.state.errors };
-    const errorMessage = this.validateProperty(input);
-    if (errorMessage) errors[input.name] = errorMessage;
-    else delete errors[input.name];
-    const data = { ...this.state.data };
-    data[input.name] = input.value;
+    let data = { ...this.state.data };
+    if (input.type === "file") {
+      console.log("FILE DATA->",input.files[0]);
+      data[input.name] = input.files[0];
+    } else {
+      const errorMessage = this.validateProperty(input);
+      if (errorMessage) errors[input.name] = errorMessage;
+      else delete errors[input.name];
+      data[input.name] = input.value;
+    }
     this.setState({ data, errors });
   };
 
@@ -57,7 +63,9 @@ class AddSuggestionForm extends React.Component {
 
   validate = () => {
     const options = { abortEarly: false };
-    const { error } = suggestionSchema.validate(this.state.data, options);
+    // Exclude 'file' from Joi validation
+    const { file, ...fieldsToValidate } = this.state.data;
+    const { error } = suggestionSchema.validate(fieldsToValidate, options);
     if (!error) return null;
     const errors = {};
     error.details.forEach((element) => (errors[element.path[0]] = element.message));
@@ -71,7 +79,12 @@ class AddSuggestionForm extends React.Component {
       this.setState({ errors });
       return;
     }
-    await this.props.addSuggestion(this.state.data, this.props.history);
+    const formData = new FormData();
+    Object.entries(this.state.data).forEach(([key, value]) => {
+      console.log(key, value);
+      if (value !== null) formData.append(key, value);
+    });
+    await this.props.addSuggestion(formData, this.props.history);
     this.props.history.push("/suggestions");
   };
 
@@ -112,6 +125,14 @@ class AddSuggestionForm extends React.Component {
               onChange={this.handleChange}
               placeholder="Describe your suggestion..."
               value={description}
+            />
+            <Input
+              name="file"
+              label="Upload File"
+              type="file"
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+              onChange={this.handleChange}
+              error={errors["file"]}
             />
             <Button disabled={this.validate()} type="submit" label="Add Suggestion" />
           </form>

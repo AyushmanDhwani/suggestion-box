@@ -1,9 +1,12 @@
 import express from "express";
 const router = express.Router();
+import path from "path";
+import multer from "multer";
+import fs from "fs";
 
 import Suggestion from "../models/movie.js";
-import SuggestionCategory from "../models/genre.js";
 import checkAuth from "../middleware/checkAuth.js";
+import SuggestionCategory from "../models/genre.js";
 import checkAdmin from "../middleware/checkAdmin.js";
 
 /**
@@ -46,15 +49,33 @@ router.get("/:suggestionId", async (req, res) => {
  * Add a new suggestion.
  * @route POST /api/suggestions
  */
-router.post("/", checkAuth, async (req, res) => {
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = "uploads/";
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir);
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+const upload = multer({ storage });
+
+router.post("/", checkAuth, upload.single("file"), async (req, res) => {
   try {
+    console.log("Received file:", req.file); // Debug log
     const { title, description, suggestionCategory } = req.body;
+    const filePath = req.file ? req.file.path : null;
     const newSuggestion = new Suggestion({
       title,
       description,
       suggestionCategory,
       status: "pending",
       comments: [],
+      file: filePath,
     });
     await newSuggestion.save();
     res.status(201).json({ message: "Suggestion added successfully", suggestion: newSuggestion });
