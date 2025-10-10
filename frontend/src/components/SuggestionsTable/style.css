@@ -1,0 +1,45 @@
+.suggestions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  padding: 2rem 0;
+}
+
+.suggestion-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1.5px 6px rgba(0,0,0,0.04);
+  padding: 2rem;
+  transition: box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.suggestion-card:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.suggestion-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  color: #2d3748;
+}
+
+.suggestion-card p {
+  margin: 0.25rem 0;
+  color: #4a5568;
+  font-size: 1rem;
+}
+
+.suggestion-card strong {
+  color: #3182ce;
+  font-size: 1.1rem;
+}
+
+.suggestion-card ul {
+  margin: 0.5rem 0 0 1rem;
+  padding: 0;
+  color: #718096;
+  font-size: 0.95rem;
+}

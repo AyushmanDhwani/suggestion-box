@@ -1,4 +1,5 @@
 import React from "react";
+import "./style.css";
 
 export default function SuggestionsTable({ suggestions, currentPage, pageSize }) {
   const currentSuggestions = suggestions.slice(
@@ -12,8 +13,8 @@ export default function SuggestionsTable({ suggestions, currentPage, pageSize })
         <div className="suggestion-card" key={suggestion._id}>
           <h4>{suggestion.title}</h4>
           <p>{suggestion.description}</p>
-          <p>Status: {suggestion.status}</p>
-          <p>Category: {suggestion.suggestionCategory?.name || "Uncategorized"}</p>
+          <p><strong>Status:</strong> {suggestion.status}</p>
+          <p><strong>Category:</strong> {suggestion.suggestionCategory?.name || "Uncategorized"}</p>
           <div>
             <strong>Comments:</strong>
             <ul>

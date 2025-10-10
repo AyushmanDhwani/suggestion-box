@@ -25,7 +25,7 @@ import "./utils/mongodb.js"; //Database
 
 //App routes to handle requests
 app.use("/api/suggestions", movie);
-app.use("/api/suggestionsCategories", genre);
+app.use("/api/suggestionCategories", genre);
 app.use("/api/users", users);
 app.use("/api/auth", auth);
 
