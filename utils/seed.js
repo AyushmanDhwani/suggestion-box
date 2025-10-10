@@ -57,6 +57,13 @@ const seedDB = async () => {
   });
 
   await User.deleteMany({});
+  // Add default admin user
+  await User.create({
+    email: "admin@example.com",
+    password: "admin123", // will be hashed by pre-save hook
+    role: "admin"
+  });
+
   await SuggestionCategory.deleteMany({});
   const createdSuggestionCategories = await SuggestionCategory.insertMany(suggestionCategories);
 
