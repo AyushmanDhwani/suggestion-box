@@ -2,29 +2,32 @@ import React, { useState, useEffect, useMemo } from "react";
 import { connect } from "react-redux";
 import _ from "lodash";
 
-import { search, categorize } from "../../utils";
-import { SuggestionsTable, Pagination } from "../../components";
-import { Input, Loading, ListGroup } from "../../components/common";
+import { search, categorize, filterRating } from "../../utils";
+import { MoviesTable, Pagination } from "../../components";
+import { Input, Loading, ListGroup, Rating } from "../../components/common";
 
-import { getSuggestions } from "../../actions/suggestionsAction";
-import { getSuggestionCategories } from "../../actions/suggestionCategoryAction";
+import { getMovies } from "../../actions/moviesAction";
+import { getGenres } from "../../actions/genreAction";
 
-const Suggestions = (props) => {
+const Movies = (props) => {
   const [pageSize] = useState(12);
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentCategory, setCurrentCategory] = useState("All");
+  const [currentGenre, setCurrentGenre] = useState("All");
   const [searchFilter, setSearchFilter] = useState("");
+  const [rating, setRating] = useState(0);
 
   useEffect(() => {
-    props.getSuggestions();
-    props.getSuggestionCategories();
-  }, [props.loggedIn, props.getSuggestions, props.getSuggestionCategories]);
+    props.getMovies();
+    props.getGenres();
+  }, [props.loggedIn, props.getMovies, props.getGenres]);
 
   const handleChange = (name, value) => {
-    if (name === "currentCategory") {
-      setCurrentCategory(value);
+    if (name === "currentGenre") {
+      setCurrentGenre(value);
     } else if (name === "searchFilter") {
       setSearchFilter(value);
+    } else if (name === "rating") {
+      setRating(value);
     }
     setCurrentPage(1);
   };
@@ -33,14 +36,15 @@ const Suggestions = (props) => {
     setCurrentPage(page);
   };
 
-  const { suggestions, suggestionCategories, loading } = props;
-  const allCategories = [{ name: "All" }, ...suggestionCategories];
+  const { movies, genres, loading } = props;
+  const allGenres = [{ name: "All" }, ...genres];
 
-  const filteredSuggestions = useMemo(() => {
-    let result = search(suggestions, searchFilter, "title");
-    result = categorize(result, currentCategory);
+  const filteredMovies = useMemo(() => {
+    let result = search(movies, searchFilter, "title");
+    result = categorize(result, currentGenre);
+    result = filterRating(result, Number(rating));
     return result;
-  }, [suggestions, searchFilter, currentCategory]);
+  }, [movies, searchFilter, currentGenre, rating]);
 
   if (loading) {
     return (
@@ -57,9 +61,15 @@ const Suggestions = (props) => {
           <div className="col-lg-2 col-sm-12 mt-10">
             <h4 className="text-muted text-left p-1">Filters</h4>
             <ListGroup
-              active={currentCategory}
-              onChange={(val) => handleChange("currentCategory", val)}
-              options={allCategories}
+              active={currentGenre}
+              onChange={(val) => handleChange("currentGenre", val)}
+              options={allGenres}
+            />
+            <h4 className="text-muted text-left p-1 mt-3">Rating</h4>
+            <Rating
+              total={10}
+              filled={rating}
+              onChange={(val) => handleChange("rating", val)}
             />
           </div>
 
@@ -68,28 +78,28 @@ const Suggestions = (props) => {
               onChange={(event) =>
                 handleChange("searchFilter", event.target.value)
               }
-              label="Search Suggestion"
+              label="Search Movie"
               iconClass="fas fa-search"
               placeholder="Search..."
             />
             <p className="text-left text-muted">
-              {!!filteredSuggestions.length ? `${filteredSuggestions.length}` : "0"}
-              suggestions found.
+              {!!filteredMovies.length ? `${filteredMovies.length}` : "0"}
+              movies found.
             </p>
 
-            {!!filteredSuggestions ? (
-              <SuggestionsTable
+            {!!filteredMovies ? (
+              <MoviesTable
                 pageSize={pageSize}
                 currentPage={currentPage}
-                suggestions={filteredSuggestions}
+                movies={filteredMovies}
               />
             ) : (
-              <h1 className="text-white">No Suggestions</h1>
+              <h1 className="text-white">No Movies</h1>
             )}
             <br />
 
             <Pagination
-              itemsCount={filteredSuggestions.length}
+              itemsCount={filteredMovies.length}
               pageSize={pageSize}
               onPageChange={onPageChange}
               currentPage={currentPage}
@@ -103,18 +113,18 @@ const Suggestions = (props) => {
 
 const mapStateToProps = (state) => {
   return {
-    suggestions: state.suggestion.suggestions,
-    suggestionCategories: state.suggestionCategory.suggestionCategories,
+    movies: state.movie.movies,
+    genres: state.genre.genres,
     loggedIn: state.auth.loggedIn,
-    loading: state.suggestion.loading,
+    loading: state.movie.loading,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    getSuggestions: () => dispatch(getSuggestions()),
-    getSuggestionCategories: () => dispatch(getSuggestionCategories()),
+    getMovies: () => dispatch(getMovies()),
+    getGenres: () => dispatch(getGenres()),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Suggestions);
+export default connect(mapStateToProps, mapDispatchToProps)(Movies);

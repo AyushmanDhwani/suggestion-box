@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-const suggestionCategorySchema = mongoose.Schema({
+const genreSchema = mongoose.Schema({
   name: { type: String, default: "uncategorized" },
 });
 
-const SuggestionCategory = mongoose.model("SuggestionCategory", suggestionCategorySchema);
-export default SuggestionCategory;
+const Genre = mongoose.model("Genre", genreSchema);
+export default Genre;

@@ -5,36 +5,37 @@ import { connect } from "react-redux";
 import Input from "../../components/common/Input";
 import Select from "../../components/common/Select";
 import { Button } from "../../components/common";
-import { addSuggestion } from "../../actions/suggestionsAction";
-import { getSuggestionCategories } from "../../actions/suggestionCategoryAction";
-import { suggestionSchema } from "./schema";
+import { addMovie } from "../../actions/moviesAction";
+import { getGenres } from "../../actions/genreAction";
+import { movieSchema } from "./schema";
 
-class AddSuggestionForm extends React.Component {
+class AddMovieForm extends React.Component {
   _isMounted = false;
 
   state = {
     data: {
       title: "",
-      suggestionCategory: "",
-      approval: false,
+      genre: "",
+      rate: "",
       description: "",
-      comments: [],
-      reviewStatus: "pending",
+      image: null,
+      trailerLink: "",
+      movieLength: "",
     },
     errors: {},
   };
 
   componentDidMount() {
     this._isMounted = true;
-    this.props.getSuggestionCategories();
+    this.props.getGenres();
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.suggestionCategories.length > 0 && prevProps.suggestionCategories.length === 0) {
+    if (this.props.genres.length > 0 && prevProps.genres.length === 0) {
       this.setState((prevState) => ({
         data: {
           ...prevState.data,
-          suggestionCategory: this.props.suggestionCategories[0]._id,
+          genre: this.props.genres[0]._id,
         },
       }));
     }
@@ -49,29 +50,38 @@ class AddSuggestionForm extends React.Component {
   handleSubmit = async (e) => {
     e.preventDefault();
     const { data } = this.state;
-    const { error } = suggestionSchema.validate(data);
+    const { error } = movieSchema.validate(data);
     this.setState({ errors: error ? error.details : {} });
     if (error) {
       console.log("Validation error:", error.details);
       return;
     }
     try {
-      await this.props.addSuggestion(data, this.props.history);
+      await this.props.addMovie(data, this.props.history);
       if (this._isMounted) {
         this.setState({
           data: {
             title: "",
-            suggestionCategory: "",
-            approval: false,
+            genre: "",
+            rate: "",
             description: "",
-            comments: [],
-            reviewStatus: "pending",
+            image: null,
+            trailerLink: "",
+            movieLength: "",
           },
           errors: {},
         });
       }
     } catch (err) {
-      console.error("Error adding suggestion:", err);
+      console.error("Error adding movie:", err);
+    }
+  };
+
+  uploadImage = (e) => {
+    if (e.target.files[0]) {
+      const data = { ...this.state.data };
+      data.image = e.target.files[0];
+      this.setState({ data });
     }
   };
 
@@ -81,83 +91,105 @@ class AddSuggestionForm extends React.Component {
 
   render() {
     const { errors, data } = this.state;
-    const { title, suggestionCategory, approval, description, comments, reviewStatus } = data;
-    const { suggestionCategories } = this.props;
+    const { title, genre, rate, description, trailerLink, movieLength } = data;
+    const { genres } = this.props;
 
     return (
       <div className="background-container pt-5 pb-3">
         <div className="container">
-          <h1 className="header">Add a new suggestion</h1>
+          <h1 className="header">Add a new movie</h1>
 
-          <form onSubmit={this.handleSubmit}>
+          <form onSubmit={this.handleSubmit} encType="multipart/form-data">
             <Input
               name="title"
               value={title}
               label="Title"
               onChange={this.handleChange}
-              placeholder="Enter the suggestion title..."
+              placeholder="Enter the title..."
               error={errors["title"]}
-              iconClass="fas fa-lightbulb"
+              iconClass="fas fa-film"
               autoFocus
             />
 
             <Select
-              name="suggestionCategory"
-              label="Suggestion Category"
+              name="genre"
+              label="Genre"
               onChange={this.handleChange}
-              value={suggestionCategory}
-              error={errors["suggestionCategory"]}
-              options={suggestionCategories}
-              iconClass="fas fa-list-alt"
+              value={genre}
+              error={errors["genre"]}
+              options={genres}
+              iconClass="fas fa-address-card"
+            />
+
+            <Input
+              name="rate"
+              label="Rating"
+              onChange={this.handleChange}
+              placeholder="Enter the rating..."
+              error={errors["rate"]}
+              iconClass="fas fa-star"
+              value={rate}
+              type="number"
+            />
+
+            <Input
+              name="image"
+              label="Cover Image"
+              onChange={this.uploadImage}
+              error={errors["coverImage"]}
+              iconClass="fas fa-file-image"
+              accept="image/*"
+              type="file"
+            />
+
+            <Input
+              name="trailerLink"
+              label="Trailer Link"
+              onChange={this.handleChange}
+              placeholder="Enter the trailer link..."
+              error={errors["trailerLink"]}
+              iconClass="fas fa-link"
+              value={trailerLink}
+            />
+
+            <Input
+              name="movieLength"
+              label="Movie Length"
+              onChange={this.handleChange}
+              placeholder="Enter the movie length..."
+              error={errors["movieLength"]}
+              iconClass="fas fa-clock"
+              value={movieLength}
             />
 
             <Input
               name="description"
               label="Description"
-              placeholder="Enter description about this suggestion..."
+              placeholder="Enter description about this movie..."
               iconClass="fas fa-info"
               error={errors["description"]}
               type="textarea"
               value={description}
               onChange={this.handleChange}
             />
-
-            <Input
-              name="approval"
-              label="Approval"
-              type="checkbox"
-              checked={approval}
-              onChange={e => this.handleChange({ currentTarget: { name: "approval", value: e.target.checked } })}
-            />
-
-            <Input
-              name="reviewStatus"
-              label="Review Status"
-              type="text"
-              value={reviewStatus}
-              onChange={this.handleChange}
-              error={errors["reviewStatus"]}
-              placeholder="pending/in review/approved/rejected"
-            />
-
-            <Button type="submit" label="Add Suggestion" />
+            <Button type="submit" label="Add Movie" />
           </form>
         </div>
       </div>
     );
   }
 }
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dipatch) => {
   return {
-    addSuggestion: (suggestion, history) => dispatch(addSuggestion(suggestion, history)),
-    getSuggestionCategories: () => dispatch(getSuggestionCategories()),
+    addMovie: (movie, history) => dipatch(addMovie(movie, history)),
+    getGenres: () => dipatch(getGenres()),
   };
 };
 
 const mapStateToProps = (state) => {
   return {
-    suggestionCategories: state.suggestionCategory.suggestionCategories,
+    genres: state.genre.genres,
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(AddSuggestionForm);
+export default connect(mapStateToProps, mapDispatchToProps)(AddMovieForm);

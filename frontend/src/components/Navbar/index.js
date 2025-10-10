@@ -36,7 +36,7 @@ function Navbar(props) {
 
       <div id="slider" className="slider">
         <ul className="list">
-          <Link onClick={toggleNav} to="/suggestions">
+          <Link onClick={toggleNav} to="/movies">
             Home
           </Link>
           {!props.loggedIn ? (

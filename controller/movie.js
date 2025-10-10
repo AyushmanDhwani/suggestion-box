@@ -1,26 +1,28 @@
 import express from "express";
 const router = express.Router();
 
-import Suggestion from "../models/movie.js";
-import SuggestionCategory from "../models/genre.js";
+import Movie from "../models/movie.js";
+import Genre from "../models/genre.js";
 import checkAuth from "../middleware/checkAuth.js";
 import checkAdmin from "../middleware/checkAdmin.js";
 
+import { upload } from "../utils/cloudinary.js";
+
 /**
- * Read all suggestions.
- * @route GET /api/suggestions
- * @returns {object} An object containing the count and list of suggestions.
- * @throws {Error} If an error occurs while retrieving the suggestions.
+ * Read all movies.
+ * @route GET /api/movies
+ * @returns {object} An object containing the count and list of movies.
+ * @throws {Error} If an error occurs while retrieving the movies.
  */
 router.get("/", async (req, res) => {
   try {
-    const suggestions = await Suggestion.find().populate({
-      path: "suggestionCategory",
+    const movies = await Movie.find().populate({
+      path: "genre",
       select: "name",
     });
     res.status(200).json({
-      count: suggestions.length,
-      suggestions: suggestions,
+      count: movies.length,
+      movies: movies,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -28,86 +30,96 @@ router.get("/", async (req, res) => {
 });
 
 /**
- * Read a suggestion by its ID.
- * @route GET /api/suggestions/:suggestionId
- * @param {string} suggestionId - The ID of the suggestion to retrieve.
- * @returns {object} The suggestion object.
- * @throws {Error} If the suggestion is not found or an error occurs while retrieving it.
+ * Read a movie by its ID.
+ * @route GET /api/movies/:movieId
+ * @param {string} movieId - The ID of the movie to retrieve.
+ * @returns {object} The movie object.
+ * @throws {Error} If the movie is not found or an error occurs while retrieving it.
  */
-router.get("/:suggestionId", async (req, res) => {
+router.get("/:movieId", async (req, res) => {
   try {
-    const suggestion = await Suggestion.findById({ _id: req.params.suggestionId })
-      .populate("suggestionCategory", "name")
-      .exec();
-    if (suggestion) return res.status(202).json(suggestion);
+    const movie = await Movie.findById({ _id: req.params.movieId })
+      .populate("genre", "name")
+      .exec(); // populate the genre associated with the movie
+    if (movie) return res.status(202).json(movie);
     return res
       .status(404)
-      .json({ error: "The suggestion you are looking for doesn't exist" });
+      .json({ error: "The movie you are looking doesn't exist" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
 /**
- * Add a new suggestion.
- * @route POST /api/suggestions/addSuggestion
- * @param {string} title - The title of the suggestion.
- * @param {string} suggestionCategory - The category of the suggestion.
- * @param {string} description - The description of the suggestion.
- * @param {boolean} approval - Approval status.
- * @param {string[]} comments - Comments on the suggestion.
- * @param {string} reviewStatus - Review status.
- * @returns {object} A success message if the suggestion is added successfully.
- * @throws {Error} If the suggestion already exists, an error occurs while saving, or validation fails.
+ * Add a new movie.
+ * @route POST /api/movies/addMovie
+ * @param {string} title - The title of the movie.
+ * @param {string} genre - The genre of the movie.
+ * @param {number} rate - The rating of the movie.
+ * @param {string} description - The description of the movie.
+ * @param {string} trailerLink - The link to the movie's trailer.
+ * @param {number} movieLength - The length of the movie in minutes.
+ * @param {File} image - The image file for the movie.
+ * @returns {object} A success message if the movie is added successfully.
+ * @throws {Error} If the movie already exists, an error occurs while saving the movie, or validation fails.
  */
 router.post(
-  "/addSuggestion",
+  "/addMovie",
+  upload.single("image"),
   checkAuth,
   checkAdmin,
   async (req, res) => {
+    console.log("Received request to add movie:", req.body);
     try {
-      const { title, suggestionCategory, description, approval, comments, reviewStatus } = req.body;
-      const isSuggestionExists = await Suggestion.findOne({ title });
+      const { title, genre, rate, description, trailerLink, movieLength } =
+      req.body;
+    console.log("Request body:", req.body);
+    const isMovieExists = await Movie.findOne({ title });
 
-      if (isSuggestionExists) {
-        return res.status(400).json({ message: "Suggestion already exists" });
-      }
-
-      const newSuggestion = new Suggestion({
-        title,
-        suggestionCategory,
-        description,
-        approval,
-        comments,
-        reviewStatus,
-      });
-      await newSuggestion.save();
-      const suggestions = await Suggestion.find().populate({
-        path: "suggestionCategory",
-        select: "name",
-      });
-      res.status(201).json({ message: "Suggestion added successfully", suggestions });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to add suggestion", message: error.message });
+    if (isMovieExists) {
+      console.log("Movie already exists:", title);
+      return res.status(400).json({ message: "Movie already exists" });
     }
+
+    const newMovie = new Movie({
+      title,
+      genre: genre,
+      rate,
+      description,
+      trailerLink,
+      movieLength,
+      image: req.file.path,
+    });
+    await newMovie.save();
+    console.log("Movie saved successfully:", newMovie);
+    const movies = await Movie.find().populate({
+      path: "genre",
+      select: "name",
+    });
+    res.status(201).json({ message: "Movie added successfully", movies: movies });
+  } catch (error) {
+    console.error("Error adding movie to database:", error);
+    res
+      .status(500)
+      .json({ error: "Failed to add movie", message: error.message });
   }
-);
+});
 
 /**
- * Update a suggestion by its ID.
- * @route PATCH /api/suggestions/:suggestionId
- * @param {string} suggestionId - The ID of the suggestion to update.
- * @returns {object} A success message and the updated suggestion object.
- * @throws {Error} If the suggestion is not found, an error occurs while updating it, or validation fails.
+ * Update a movie by its ID.
+ * @route PATCH /api/movies/:movieId
+ * @param {string} movieId - The ID of the movie to update.
+ * @returns {object} A success message and the updated movie object.
+ * @throws {Error} If the movie is not found, an error occurs while updating it, or validation fails.
  */
-router.patch("/:suggestionId", checkAuth, checkAdmin, async (req, res) => {
+router.patch("/:movieId", checkAuth, checkAdmin, async (req, res) => {
   try {
-    const updateSuggestion = await Suggestion.findByIdAndUpdate(
-      { _id: req.params.suggestionId },
+    const updateMovie = await Movie.findByIdAndUpdate(
+      { _id: req.params.movieId },
       req.body,
       { new: true }
     );
-    res.status(200).json({ msg: "Suggestion updated successfully", updateSuggestion });
+    res.status(200).json({ msg: "movie updated successfully", updateMovie });
   } catch (err) {
     res.status(500).json({ err: `Something went wrong: ${err}` });
   }
