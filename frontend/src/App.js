@@ -13,7 +13,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-// import MovieForm from './components/movieForm';
+import Suggestions from "./pages/Suggestions";
 
 import "./App.css";
 
@@ -33,8 +33,9 @@ class App extends Component {
               <Route exact path="/login" component={Login} />
               <Route path="/register" component={Register} />
               <Route path="/movies" exact component={Movies} />
+              <Route path="/suggestions" exact component={Suggestions} />
 
-              <Redirect exact from="/" to="/movies" />
+              <Redirect exact from="/" to="/suggestions" />
             </Switch>
             <Footer />
           </div>

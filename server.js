@@ -24,8 +24,8 @@ app.use(bodyParser.json({ limit: "10mb" }));
 import "./utils/mongodb.js"; //Database
 
 //App routes to handle requests
-app.use("/api/movies", movie);
-app.use("/api/genres", genre);
+app.use("/api/suggestions", movie);
+app.use("/api/suggestionsCategories", genre);
 app.use("/api/users", users);
 app.use("/api/auth", auth);
 

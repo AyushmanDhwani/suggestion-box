@@ -3,6 +3,8 @@ import {
   GET_GENRES_SUCCESS,
   ADD_GENRE_SUCCESS,
   ADD_GENRE_ERROR,
+  GET_SUGGESTION_CATEGORIES_ERROR,
+  GET_SUGGESTION_CATEGORIES_SUCCESS,
 } from "./actionTypes";
 import Axios from "axios";
 
@@ -31,6 +33,17 @@ export const addGenre = (genre) => {
       dispatch({ type: ADD_GENRE_SUCCESS, payload: result.data });
     } catch (error) {
       dispatch({ type: ADD_GENRE_ERROR, error });
+    }
+  };
+};
+
+export const getSuggestionCategories = () => {
+  return async (dispatch) => {
+    try {
+      const result = await Axios.get("/api/suggestionCategories");
+      dispatch({ type: GET_SUGGESTION_CATEGORIES_SUCCESS, payload: result.data });
+    } catch (error) {
+      dispatch({ type: GET_SUGGESTION_CATEGORIES_ERROR, error });
     }
   };
 };
