@@ -29,7 +29,7 @@ export const addGenre = (genre) => {
       },
     };
     try {
-      const result = await Axios.post("/api/genres", genre, config);
+      const result = await Axios.post("/api/suggestionCategories", genre, config);
       dispatch({ type: ADD_GENRE_SUCCESS, payload: result.data });
     } catch (error) {
       dispatch({ type: ADD_GENRE_ERROR, error });
