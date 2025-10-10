@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
 
-const movieSchema = mongoose.Schema({
+const suggestionSchema = mongoose.Schema({
   title: { type: String, required: true },
-  genre: [{ type: mongoose.Schema.Types.ObjectId, ref: "Genre" }],
-  image: { type: String },
-  rate: { type: Number, required: true, default: 0},
   description: { type: String, required: true },
-  trailerLink: { type: String },
-  movieLength: { type: String, required: true },
+  status: { type: String, enum: ["pending", "in-progress", "resolved"], default: "pending" },
+  comments: [{
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    text: { type: String },
+    createdAt: { type: Date, default: Date.now }
+  }],
+  suggestionCategory: { type: mongoose.Schema.Types.ObjectId, ref: "SuggestionCategory" },
 });
 
-const Movie = mongoose.model("Movie", movieSchema);
-export default Movie;
+const Suggestion = mongoose.model("Suggestion", suggestionSchema);
+export default Suggestion;
