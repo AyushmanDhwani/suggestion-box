@@ -5,191 +5,124 @@ import { connect } from "react-redux";
 import Input from "../../components/common/Input";
 import Select from "../../components/common/Select";
 import { Button } from "../../components/common";
-import { addMovie } from "../../actions/moviesAction";
-import { getGenres } from "../../actions/genreAction";
-import { movieSchema } from "./schema";
+import { addSuggestion } from "../../actions/moviesAction";
+import { getSuggestionCategories } from "../../actions/genreAction";
+import { suggestionSchema } from "./schema";
 
-class AddMovieForm extends React.Component {
+class AddSuggestionForm extends React.Component {
   _isMounted = false;
 
   state = {
     data: {
       title: "",
-      genre: "",
-      rate: "",
+      suggestionCategory: "",
       description: "",
-      image: null,
-      trailerLink: "",
-      movieLength: "",
     },
     errors: {},
   };
 
   componentDidMount() {
     this._isMounted = true;
-    this.props.getGenres();
+    this.props.getSuggestionCategories();
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.genres.length > 0 && prevProps.genres.length === 0) {
+    if (this.props.suggestionCategories.length > 0 && prevProps.suggestionCategories.length === 0) {
       this.setState((prevState) => ({
         data: {
           ...prevState.data,
-          genre: this.props.genres[0]._id,
+          suggestionCategory: this.props.suggestionCategories[0]._id,
         },
       }));
     }
   }
 
   handleChange = ({ currentTarget: input }) => {
+    const errors = { ...this.state.errors };
+    const errorMessage = this.validateProperty(input);
+    if (errorMessage) errors[input.name] = errorMessage;
+    else delete errors[input.name];
     const data = { ...this.state.data };
     data[input.name] = input.value;
-    this.setState({ data });
+    this.setState({ data, errors });
+  };
+
+  validateProperty = (input) => {
+    const { name, value } = input;
+    const obj = { [name]: value };
+    const subSchema = Joi.object({ [name]: suggestionSchema.extract(name) });
+    const { error } = subSchema.validate(obj);
+    return error ? error.details[0].message : null;
+  };
+
+  validate = () => {
+    const options = { abortEarly: false };
+    const { error } = suggestionSchema.validate(this.state.data, options);
+    if (!error) return null;
+    const errors = {};
+    error.details.forEach((element) => (errors[element.path[0]] = element.message));
+    return errors;
   };
 
   handleSubmit = async (e) => {
     e.preventDefault();
-    const { data } = this.state;
-    const { error } = movieSchema.validate(data);
-    this.setState({ errors: error ? error.details : {} });
-    if (error) {
-      console.log("Validation error:", error.details);
+    const errors = this.validate();
+    if (errors) {
+      this.setState({ errors });
       return;
     }
-    try {
-      await this.props.addMovie(data, this.props.history);
-      if (this._isMounted) {
-        this.setState({
-          data: {
-            title: "",
-            genre: "",
-            rate: "",
-            description: "",
-            image: null,
-            trailerLink: "",
-            movieLength: "",
-          },
-          errors: {},
-        });
-      }
-    } catch (err) {
-      console.error("Error adding movie:", err);
-    }
+    await this.props.addSuggestion(this.state.data, this.props.history);
+    this.props.history.push("/suggestions");
   };
-
-  uploadImage = (e) => {
-    if (e.target.files[0]) {
-      const data = { ...this.state.data };
-      data.image = e.target.files[0];
-      this.setState({ data });
-    }
-  };
-
-  componentWillUnmount() {
-    this._isMounted = false;
-  }
 
   render() {
-    const { errors, data } = this.state;
-    const { title, genre, rate, description, trailerLink, movieLength } = data;
-    const { genres } = this.props;
-
+    const { data, errors } = this.state;
+    const { title, suggestionCategory, description } = data;
+    const { suggestionCategories } = this.props;
     return (
-      <div className="background-container pt-5 pb-3">
+      <div className="background-container pt-5">
         <div className="container">
-          <h1 className="header">Add a new movie</h1>
-
-          <form onSubmit={this.handleSubmit} encType="multipart/form-data">
+          <h1 className="header">Add Suggestion</h1>
+          <form onSubmit={this.handleSubmit}>
             <Input
               name="title"
-              value={title}
               label="Title"
-              onChange={this.handleChange}
-              placeholder="Enter the title..."
+              type="text"
               error={errors["title"]}
-              iconClass="fas fa-film"
+              iconClass="fas fa-lightbulb"
+              onChange={this.handleChange}
+              placeholder="Enter your suggestion title..."
+              value={title}
               autoFocus
             />
-
             <Select
-              name="genre"
-              label="Genre"
+              name="suggestionCategory"
+              label="Suggestion Category"
+              options={suggestionCategories}
+              error={errors["suggestionCategory"]}
               onChange={this.handleChange}
-              value={genre}
-              error={errors["genre"]}
-              options={genres}
-              iconClass="fas fa-address-card"
+              value={suggestionCategory}
             />
-
-            <Input
-              name="rate"
-              label="Rating"
-              onChange={this.handleChange}
-              placeholder="Enter the rating..."
-              error={errors["rate"]}
-              iconClass="fas fa-star"
-              value={rate}
-              type="number"
-            />
-
-            <Input
-              name="image"
-              label="Cover Image"
-              onChange={this.uploadImage}
-              error={errors["coverImage"]}
-              iconClass="fas fa-file-image"
-              accept="image/*"
-              type="file"
-            />
-
-            <Input
-              name="trailerLink"
-              label="Trailer Link"
-              onChange={this.handleChange}
-              placeholder="Enter the trailer link..."
-              error={errors["trailerLink"]}
-              iconClass="fas fa-link"
-              value={trailerLink}
-            />
-
-            <Input
-              name="movieLength"
-              label="Movie Length"
-              onChange={this.handleChange}
-              placeholder="Enter the movie length..."
-              error={errors["movieLength"]}
-              iconClass="fas fa-clock"
-              value={movieLength}
-            />
-
             <Input
               name="description"
               label="Description"
-              placeholder="Enter description about this movie..."
-              iconClass="fas fa-info"
+              type="text"
               error={errors["description"]}
-              type="textarea"
-              value={description}
+              iconClass="fas fa-align-left"
               onChange={this.handleChange}
+              placeholder="Describe your suggestion..."
+              value={description}
             />
-            <Button type="submit" label="Add Movie" />
+            <Button disabled={this.validate()} type="submit" label="Add Suggestion" />
           </form>
         </div>
       </div>
     );
   }
 }
-const mapDispatchToProps = (dipatch) => {
-  return {
-    addMovie: (movie, history) => dipatch(addMovie(movie, history)),
-    getGenres: () => dipatch(getGenres()),
-  };
-};
 
-const mapStateToProps = (state) => {
-  return {
-    genres: state.genre.genres,
-  };
-};
+const mapStateToProps = (state) => ({
+  suggestionCategories: state.genre.suggestionCategories,
+});
 
-export default connect(mapStateToProps, mapDispatchToProps)(AddMovieForm);
+export default connect(mapStateToProps, { addSuggestion, getSuggestionCategories })(AddSuggestionForm);

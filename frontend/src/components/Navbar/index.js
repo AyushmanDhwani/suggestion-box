@@ -63,10 +63,10 @@ function Navbar(props) {
           {props.user && props.user.role === "admin" && (
             <>
               <Link onClick={toggleNav} to="/movies/new">
-                Add Movie
+                Add Suggestion
               </Link>
               <Link onClick={toggleNav} to="/genres/new">
-                Add Genre
+                Add Suggestion Category
               </Link>
             </>
           )}

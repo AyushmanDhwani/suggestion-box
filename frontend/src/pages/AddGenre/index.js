@@ -13,7 +13,7 @@ class AddGenre extends React.Component {
   };
 
   schema = {
-    name: Joi.string().required().label("Genre"),
+    name: Joi.string().required().label("Suggestion Category"),
   };
 
   handleChange = ({ currentTarget: input }) => {
@@ -68,20 +68,20 @@ class AddGenre extends React.Component {
     return (
       <div className="background-container pt-5">
         <div className="container">
-          <h1 className="header">Add Genre</h1>
+          <h1 className="header">Add Suggestion Category</h1>
           <form onSubmit={this.handleSubmit}>
             <Input
               name="name"
-              label="Genre"
+              label="Suggestion Category"
               type="text"
               error={errors["name"]}
-              iconClass="fas fa-film"
+              iconClass="fas fa-tags"
               onChange={this.handleChange}
-              placeholder="Please enter the genre..."
+              placeholder="Please enter the suggestion category..."
               value={name}
               autoFocus
             />
-            <Button disabled={this.validate()} type="submit" label="Add Genre" />
+            <Button disabled={this.validate()} type="submit" label="Add Suggestion Category" />
           </form>
         </div>
       </div>
