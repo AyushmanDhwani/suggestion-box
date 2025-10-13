@@ -14,14 +14,14 @@ import checkAdmin from "../middleware/checkAdmin.js";
  * @route GET /api/suggestions
  * @returns {object[]} An array of suggestion objects.
  */
-router.get("/", async (req, res) => {
+router.get("/",checkAuth, async (req, res) => {
   try {
 
     let whereCondition = {};
     if (req.user?.role != "admin") {
       whereCondition.status = "active";
     }
-    const suggestions = await Suggestion.find({}).populate({
+    const suggestions = await Suggestion.find(whereCondition).populate({
       path: "suggestionCategory",
       select: "name",
     });

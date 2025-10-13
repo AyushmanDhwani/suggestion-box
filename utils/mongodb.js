@@ -12,3 +12,4 @@ mongoose
   .catch((err) => console.log(err));
 
 console.log(process.env.MONGO_URL);
+mongoose.set("debug", true);
