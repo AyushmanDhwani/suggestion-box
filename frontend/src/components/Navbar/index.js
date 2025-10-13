@@ -70,6 +70,13 @@ function Navbar(props) {
               </Link>
             </>
           )}
+          {props.user && props.user.role === "user" && (
+            <>
+              <Link onClick={toggleNav} to="/movies/new">
+                Add Suggestion
+              </Link>
+            </>
+          )}
         </ul>
       </div>
     </nav>

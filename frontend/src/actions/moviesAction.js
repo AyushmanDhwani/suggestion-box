@@ -1,4 +1,6 @@
-import Axios from "axios";
+// import Axios from "axios";
+import Axios from "../api/axiosConfig";
+
 import {
   GET_MOVIES_SUCCESS,
   GET_MOVIES_ERROR,

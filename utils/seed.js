@@ -59,7 +59,7 @@ const seedDB = async () => {
   await User.deleteMany({});
   // Add default admin user
   await User.create({
-    email: "admin@example.com",
+    email: "admin@yopmail.com",
     password: "admin123", // will be hashed by pre-save hook
     role: "admin"
   });

@@ -5,7 +5,8 @@ import {
   SIGNUP_SUCCESS,
   SIGNUP_ERROR,
 } from "./actionTypes";
-import Axios from "axios";
+// import Axios from "axios";
+import Axios from "../api/axiosConfig";
 
 export const signIn = (credentials, history) => {
   return async (dispatch) => {

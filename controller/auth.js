@@ -26,8 +26,11 @@ router.post("/signUp", async (req, res) => {
     }
 
     const user = new User({ email, password });
-    if (email === "admin@gmail.com") {
+    if (email === "admin@yopmail.com") {
       user.role = "admin";
+    }
+    else {
+      user.role = "user";
     }
     await user.save();
 

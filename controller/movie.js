@@ -16,7 +16,12 @@ import checkAdmin from "../middleware/checkAdmin.js";
  */
 router.get("/", async (req, res) => {
   try {
-    const suggestions = await Suggestion.find().populate({
+
+    let whereCondition = {};
+    if (req.user?.role != "admin") {
+      whereCondition.status = "active";
+    }
+    const suggestions = await Suggestion.find({}).populate({
       path: "suggestionCategory",
       select: "name",
     });

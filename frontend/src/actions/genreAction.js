@@ -6,7 +6,9 @@ import {
   GET_SUGGESTION_CATEGORIES_ERROR,
   GET_SUGGESTION_CATEGORIES_SUCCESS,
 } from "./actionTypes";
-import Axios from "axios";
+// import Axios from "axios";
+import Axios from "../api/axiosConfig";
+
 
 export const getGenres = () => {
   return async (dispatch) => {
