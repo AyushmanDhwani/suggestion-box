@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useEffect } from "react";
 import {
   Route,
   Redirect,
@@ -20,6 +20,22 @@ import "./App.css";
 import { Provider } from "react-redux";
 import store from "./store";
 
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+
+// Optional functional wrapper to handle toast on page load
+const ToastHandler = () => {
+  useEffect(() => {
+    const msg = localStorage.getItem("toastMessage");
+    console.log("Toast message on load:", msg);
+    debugger;
+    if (msg) {
+      toast.warn(msg, { autoClose: 5000 });
+      localStorage.removeItem("toastMessage");
+    }
+  }, []);
+  return null;
+};
 class App extends Component {
   render() {
     return (
@@ -27,6 +43,21 @@ class App extends Component {
         <Router>
           <div className="App">
             <Navbar />
+            {/* Toast container */}
+            <ToastContainer 
+              position="top-right" 
+              autoClose={5000} 
+              hideProgressBar={false} 
+              newestOnTop={false} 
+              closeOnClick 
+              rtl={false} 
+              pauseOnFocusLoss 
+              draggable 
+              pauseOnHover
+            />
+
+             {/* Render toast handler */}
+            <ToastHandler />
             <Switch>
               <Route exact path="/movies/new" component={AddMovieForm} />
               <Route exact path="/genres/new" component={AddGenre} />
@@ -35,7 +66,7 @@ class App extends Component {
               <Route path="/movies" exact component={Movies} />
               <Route path="/suggestions" exact component={Suggestions} />
 
-              <Redirect exact from="/" to="/suggestions" />
+              <Redirect exact from="/" to="/login" />
             </Switch>
             <Footer />
           </div>
@@ -44,5 +75,7 @@ class App extends Component {
     );
   }
 }
+
+
 
 export default App;
