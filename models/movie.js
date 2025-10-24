@@ -11,6 +11,9 @@ const suggestionSchema = mongoose.Schema({
   }],
   suggestionCategory: { type: mongoose.Schema.Types.ObjectId, ref: "SuggestionCategory" },
   file: { type: String }, // Path to uploaded file
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
 });
 
 const Suggestion = mongoose.model("Suggestion", suggestionSchema);

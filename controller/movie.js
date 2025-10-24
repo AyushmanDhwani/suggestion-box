@@ -81,6 +81,7 @@ router.post("/", checkAuth, upload.single("file"), async (req, res) => {
       status: "pending",
       comments: [],
       file: filePath,
+      createdBy: req.user.id
     });
     await newSuggestion.save();
     res.status(201).json({ message: "Suggestion added successfully", suggestion: newSuggestion });
