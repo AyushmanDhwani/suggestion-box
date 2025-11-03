@@ -132,4 +132,56 @@ router.post("/:suggestionId/comment", checkAuth, async (req, res) => {
   }
 });
 
+/**
+ * Approve a suggestion (set status to resolved)
+ * @route POST /api/suggestions/:suggestionId/approve
+ */
+router.post("/:suggestionId/approve", checkAuth, async (req, res) => {
+  try {
+    const suggestion = await Suggestion.findById(req.params.suggestionId);
+    if (!suggestion) {
+      return res.status(404).json({ error: "Suggestion not found." });
+    }
+    suggestion.status = "resolved";
+    suggestion.updatedAt = new Date();
+    suggestion.adminAction = {
+      user: req.user.id,
+      action: "approved",
+      date: new Date()
+    };
+    await suggestion.save();
+    const updated = await Suggestion.findById(req.params.suggestionId)
+      .populate("suggestionCategory", "name");
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * Reject a suggestion (set status to rejected)
+ * @route POST /api/suggestions/:suggestionId/reject
+ */
+router.post("/:suggestionId/reject", checkAuth, async (req, res) => {
+  try {
+    const suggestion = await Suggestion.findById(req.params.suggestionId);
+    if (!suggestion) {
+      return res.status(404).json({ error: "Suggestion not found." });
+    }
+    suggestion.status = "rejected";
+    suggestion.updatedAt = new Date();
+    suggestion.adminAction = {
+      user: req.user.id,
+      action: "rejected",
+      date: new Date()
+    };
+    await suggestion.save();
+    const updated = await Suggestion.findById(req.params.suggestionId)
+      .populate("suggestionCategory", "name");
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

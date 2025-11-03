@@ -4,8 +4,11 @@ import { connect } from "react-redux";
 // import { getSuggestions, addCommentToSuggestion, updateSuggestionStatus } from "../../actions/moviesAction";
 import { getSuggestions } from "../../actions/moviesAction";
 import Axios from "../../api/axiosConfig";
-
+import { toast } from "react-toastify";
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css";
 import { Loading } from "../../components/common";
+import "react-toastify/dist/ReactToastify.css";
 import "./style.css";
 
 
@@ -36,10 +39,26 @@ const SuggestionDetail = ({ suggestions, loading, getSuggestions }) => {
   };
 
   const handleStatusUpdate = async (newStatus) => {
-    setStatusUpdating(true);
-    await updateSuggestionStatus(id, newStatus);
-    setStatusUpdating(false);
-    getSuggestions(); // Refresh suggestions
+    let actionText = newStatus === "resolved" ? "approve" : "reject";
+    confirmAlert({
+      title: "Confirm Action",
+      message: `Are you sure you want to ${actionText} this suggestion?`,
+      buttons: [
+        {
+          label: "Yes",
+          onClick: async () => {
+            setStatusUpdating(true);
+            await updateSuggestionStatus(id, newStatus);
+            setStatusUpdating(false);
+            getSuggestions(); // Refresh suggestions
+          }
+        },
+        {
+          label: "No",
+          onClick: () => {}
+        }
+      ]
+    });
   };
 
   // Add a comment using the API (with Axios and token)
@@ -58,7 +77,7 @@ const SuggestionDetail = ({ suggestions, loading, getSuggestions }) => {
       const res = await Axios.post(`/api/suggestions/${id}/comment`, { text, user, createdAt }, config);
       setSuggestion(res.data);
     } catch (err) {
-      // Optionally show error
+      console.error("Error adding comment:", err);
     }
   };
 
@@ -73,9 +92,17 @@ const SuggestionDetail = ({ suggestions, loading, getSuggestions }) => {
           Authorization: `Bearer ${token}`,
         },
       };
-      const updatedAt = new Date().toISOString();
-      const res = await Axios.patch(`/api/suggestions/${id}`, { status: newStatus, updatedAt }, config);
-      setSuggestion(res.data.updateSuggestion);
+      let res;
+      if (newStatus === "resolved") {
+        res = await Axios.post(`/api/suggestions/${id}/approve`, {}, config);
+      } else if (newStatus === "rejected") {
+        res = await Axios.post(`/api/suggestions/${id}/reject`, {}, config);
+      } else {
+        // fallback to PATCH for other statuses
+        const updatedAt = new Date().toISOString();
+        res = await Axios.patch(`/api/suggestions/${id}`, { status: newStatus, updatedAt }, config);
+      }
+      setSuggestion(res.data);
     } catch (err) {
       // Optionally show error
     }
@@ -111,8 +138,8 @@ const SuggestionDetail = ({ suggestions, loading, getSuggestions }) => {
             <p><strong>Date:</strong> {suggestion.date || suggestion.createdAt || "N/A"}</p>
           </div>
 
-          {/* Approve/Reject Buttons - now smaller and less prominent */}
-          {(suggestion.status === "pending" || suggestion.status === "in-progress") && (
+          {/* Approve/Reject Buttons - conditional rendering based on status */}
+          {suggestion.status === "pending" && (
             <div className="mb-4 d-flex gap-2">
               <button
                 className="btn btn-outline-success btn-sm"
@@ -129,6 +156,30 @@ const SuggestionDetail = ({ suggestions, loading, getSuggestions }) => {
                 onClick={() => handleStatusUpdate("rejected")}
               >
                 Reject
+              </button>
+            </div>
+          )}
+          {suggestion.status === "resolved" && (
+            <div className="mb-4 d-flex gap-2">
+              <button
+                className="btn btn-outline-danger btn-sm"
+                style={{ minWidth: 90 }}
+                disabled={statusUpdating}
+                onClick={() => handleStatusUpdate("rejected")}
+              >
+                Reject
+              </button>
+            </div>
+          )}
+          {suggestion.status === "rejected" && (
+            <div className="mb-4 d-flex gap-2">
+              <button
+                className="btn btn-outline-success btn-sm"
+                style={{ minWidth: 90 }}
+                disabled={statusUpdating}
+                onClick={() => handleStatusUpdate("resolved")}
+              >
+                Approve
               </button>
             </div>
           )}
