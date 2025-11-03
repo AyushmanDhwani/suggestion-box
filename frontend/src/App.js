@@ -14,6 +14,8 @@ import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Suggestions from "./pages/Suggestions";
+import SuggestionDetail from "./pages/SuggestionDetail";
+
 
 import "./App.css";
 
@@ -65,6 +67,7 @@ class App extends Component {
               <Route path="/register" component={Register} />
               <Route path="/movies" exact component={Movies} />
               <Route path="/suggestions" exact component={Suggestions} />
+              <Route path="/suggestions/:id" component={SuggestionDetail} />
 
               <Redirect exact from="/" to="/login" />
             </Switch>
