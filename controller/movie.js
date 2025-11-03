@@ -107,4 +107,29 @@ router.patch("/:suggestionId", checkAuth, async (req, res) => {
   }
 });
 
+/**
+ * Add a comment to a suggestion.
+ * @route POST /api/suggestions/:suggestionId/comment
+ */
+router.post("/:suggestionId/comment", checkAuth, async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text || typeof text !== "string") {
+      return res.status(400).json({ error: "Comment text is required." });
+    }
+    const suggestion = await Suggestion.findById(req.params.suggestionId);
+    if (!suggestion) {
+      return res.status(404).json({ error: "Suggestion not found." });
+    }
+    suggestion.comments.push({ text, user: req.user.id, createdAt: new Date() });
+    await suggestion.save();
+    // Optionally, populate user info if needed
+    const updated = await Suggestion.findById(req.params.suggestionId)
+      .populate("suggestionCategory", "name");
+    res.status(200).json(updated);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

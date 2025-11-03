@@ -5,6 +5,7 @@ import _ from "lodash";
 import { search } from "../../utils";
 import SuggestionsTable from "../../components/SuggestionsTable";
 import { Input, Loading, ListGroup } from "../../components/common";
+import Pagination from "../../components/Pagination";
 
 import { getSuggestions } from "../../actions/moviesAction";
 import { getSuggestionCategories } from "../../actions/genreAction";
@@ -91,6 +92,12 @@ const Suggestions = (props) => {
               <h1 className="text-white">No Suggestions</h1>
             )}
             <br />
+            <Pagination
+              itemsCount={filteredSuggestions.length}
+              pageSize={pageSize}
+              currentPage={currentPage}
+              onPageChange={onPageChange}
+            />
           </div>
         </div>
       </div>

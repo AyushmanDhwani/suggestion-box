@@ -18,7 +18,6 @@ export default function SuggestionsTable({ suggestions, currentPage, pageSize })
         >
           <div className="suggestion-card">
             <h4>{suggestion.title}</h4>
-            <p>{suggestion.description}</p>
             <p>
               <strong>Status:</strong> {suggestion.status}
             </p>
@@ -26,18 +25,6 @@ export default function SuggestionsTable({ suggestions, currentPage, pageSize })
               <strong>Category:</strong>{" "}
               {suggestion.suggestionCategory?.name || "Uncategorized"}
             </p>
-            <div>
-              <strong>Comments:</strong>
-              <ul>
-                {suggestion.comments && suggestion.comments.length > 0 ? (
-                  suggestion.comments.map((comment, idx) => (
-                    <li key={idx}>{comment.text}</li>
-                  ))
-                ) : (
-                  <li>No comments yet.</li>
-                )}
-              </ul>
-            </div>
           </div>
         </Link>
       ))}
