@@ -30,7 +30,6 @@ const ToastHandler = () => {
   useEffect(() => {
     const msg = localStorage.getItem("toastMessage");
     console.log("Toast message on load:", msg);
-    debugger;
     if (msg) {
       toast.warn(msg, { autoClose: 5000 });
       localStorage.removeItem("toastMessage");
